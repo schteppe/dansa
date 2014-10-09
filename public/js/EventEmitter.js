@@ -3,10 +3,10 @@
  * @class EventEmitter
  * @constructor
  */
-function EventEmitter() {}
+DANSA.EventEmitter = function() {};
 
-EventEmitter.prototype = {
-    constructor: EventEmitter,
+DANSA.EventEmitter.prototype = {
+    constructor: DANSA.EventEmitter,
 
     /**
      * Add an event listener

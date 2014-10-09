@@ -1,0 +1,1 @@
+window.DANSA = window.DANSA || {};

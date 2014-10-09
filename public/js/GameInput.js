@@ -1,9 +1,10 @@
 /**
  * Loads/saves keymaps, keeps track of gamepad state.
+ * @todo : keep track of prev state
  */
-function GameInput(){
+DANSA.GameInput = function(){
 	var that = this;
-	EventEmitter.call(this);
+	DANSA.EventEmitter.call(this);
 
 	this.haveEvents = 'GamepadEvent' in window;
 	if (this.haveEvents) {
@@ -29,11 +30,11 @@ function GameInput(){
 
 	this.isSetUp = false;
 	this.loadKeymaps();
-}
+};
 
-GameInput.prototype = new EventEmitter();
+DANSA.GameInput.prototype = new DANSA.EventEmitter();
 
-GameInput.prototype.addPlayer = function(){
+DANSA.GameInput.prototype.addPlayer = function(){
 	this.players.push({
 		buttonState: 0
 	});
@@ -43,9 +44,25 @@ GameInput.prototype.addPlayer = function(){
 /**
  * Should be called in the animation loop.
  */
-GameInput.prototype.update = function(){
+DANSA.GameInput.prototype.update = function(){
 
 	this.scanGamepads();
+
+	// Set all button states to unpressed
+
+	for(var idx in this.controllers){
+		var controller = this.controllers[idx];
+		for (var i = 0; i<controller.buttons.length; i++) {
+			for(var playerIndex in this.keymaps){
+				var map = this.keymaps[playerIndex];
+
+				if(map[i]){
+					var p = this.players[playerIndex];
+					p.buttonState = 0;
+				}
+			}
+		}
+	}
 
 	for(var idx in this.controllers){
 		var controller = this.controllers[idx];
@@ -65,12 +82,10 @@ GameInput.prototype.update = function(){
 				for(var playerIndex in this.keymaps){
 					var map = this.keymaps[playerIndex];
 
-					if(map[i]){
-						var p = this.players[playerIndex];
-						if(pressed){
-							p.buttonState = p.buttonState | map[i];
-						} else {
-							p.buttonState = (~p.buttonState) & map[i];
+					for(var keyName in map){
+						if(map[keyName].button === i){
+							var p = this.players[playerIndex];
+							p.buttonState = p.buttonState | parseInt(keyName, 10);
 						}
 					}
 				}
@@ -83,15 +98,15 @@ GameInput.prototype.update = function(){
 	}
 };
 
-GameInput.prototype.addGamepad = function(gamepad){
+DANSA.GameInput.prototype.addGamepad = function(gamepad){
 	this.controllers[gamepad.index] = gamepad;
 };
 
-GameInput.prototype.removeGamepad = function(gamepad){
+DANSA.GameInput.prototype.removeGamepad = function(gamepad){
 	delete this.controllers[gamepad.index];
 };
 
-GameInput.prototype.scanGamepads = function(gamepad){
+DANSA.GameInput.prototype.scanGamepads = function(gamepad){
 	var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
 	for (var i = 0; i < gamepads.length; i++) {
 		if (gamepads[i]) {
@@ -107,7 +122,7 @@ GameInput.prototype.scanGamepads = function(gamepad){
 /**
  * Loads keymaps from localStorage
  */
-GameInput.prototype.loadKeymaps = function(){
+DANSA.GameInput.prototype.loadKeymaps = function(){
 	if(localStorage.keymaps){
 		try {
 			this.keymaps = JSON.parse(localStorage.keymaps);
@@ -119,7 +134,7 @@ GameInput.prototype.loadKeymaps = function(){
 	}
 };
 
-GameInput.prototype.saveKeymaps = function(){
+DANSA.GameInput.prototype.saveKeymaps = function(){
 	localStorage.keymaps = JSON.stringify(this.keymaps);
 };
 
@@ -128,7 +143,7 @@ GameInput.prototype.saveKeymaps = function(){
  * @param  {int} player
  * @param  {int} key
  */
-GameInput.prototype.startMap = function(player, key){
+DANSA.GameInput.prototype.startMap = function(player, key){
 	this.mappingPlayer = player;
 	this.mappingKey = key;
 
@@ -136,7 +151,7 @@ GameInput.prototype.startMap = function(player, key){
 	this.mappingState = JSON.parse(JSON.stringify(this.controllers));
 };
 
-GameInput.prototype.endMap = function(){
+DANSA.GameInput.prototype.endMap = function(){
 	if(this.mappingPlayer < 0){
 		return;
 	}
@@ -175,6 +190,12 @@ GameInput.prototype.endMap = function(){
 				val2 = val2.value;
 			}
 
+			// An unpress... Save new state as old and move on.
+			if(pressed2 && !pressed){
+				this.mappingState = JSON.parse(JSON.stringify(this.controllers));
+			}
+
+			// A new press!
 			if(!pressed2 && pressed){
 
 				// Store
@@ -197,7 +218,7 @@ GameInput.prototype.endMap = function(){
 	}
 };
 
-GameInput.Keys = {
+DANSA.GameInput.Keys = {
 	LEFT: 1,
 	RIGHT: 2,
 	UP: 4,

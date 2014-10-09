@@ -119,21 +119,21 @@ function handleTapNoteScore(tapNoteScore) {
 targets = [];
 for (var i = 0; i < colInfos.length; i++) {
     var colInfo = colInfos[i];
-    targets.push(new Actor(imgDir+"down-target.png", { frameWidth: 64, frameHeight: 64, numFrames: 3 }, colInfo));
+    targets.push(new Actor("/img/down-target.png", { frameWidth: 64, frameHeight: 64, numFrames: 3 }, colInfo));
 }
 
 explosions = [];
 for (var i = 0; i < colInfos.length; i++) {
     var colInfo = colInfos[i];
-    var target = new Actor(imgDir + "down-explosion.png", { frameWidth: 64, frameHeight: 64, numFrames: 1 }, colInfo);
+    var target = new Actor("/img/down-explosion.png", { frameWidth: 64, frameHeight: 64, numFrames: 1 }, colInfo);
     explosions.push(target);
     target.set({ alpha: 0 });
 }
 
-var judgment = new Actor(imgDir + "judgment.png", { frameWidth: 168, frameHeight: 28, numFrames: 6 }, { x: 160, y: 160 });
+var judgment = new Actor("/img/judgment.png", { frameWidth: 168, frameHeight: 28, numFrames: 6 }, { x: 160, y: 160 });
 judgment.set({ alpha: 0 });
-var noteSprite = Sprite(imgDir + "down-note.png", { frameWidth: 64, frameHeight: 64, numFrames: 16 });
-var barSprite = Sprite(imgDir + "bar.png", { frameWidth: 1, frameHeight: 10, numFrames: 1 });
+var noteSprite = Sprite("/img/down-note.png", { frameWidth: 64, frameHeight: 64, numFrames: 16 });
+var barSprite = Sprite("/img/bar.png", { frameWidth: 1, frameHeight: 10, numFrames: 1 });
 
 
 
