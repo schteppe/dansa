@@ -321,31 +321,21 @@ audio.addEventListener('timeupdate', function(evt){
     dTime = (audio.currentTime - lastCurrentTime) / (now - lastTime);
     lastTime = now;
     lastCurrentTime = audio.currentTime;
+
+    messageFrame({
+        type: 'timeupdate',
+        time: lastCurrentTime,
+        addToMusicPositionSeconds: addToMusicPositionSeconds,
+        beatsPerSec: beatsPerSec
+    });
 });
 
 var useCurrentTimeSmoothing = false;
 var lastSeenCurrentTime = 0;
 function update(deltaSeconds) {
 
-    /*
-    // test
-    if(!useCurrentTimeSmoothing){
-        currentTime = audio.currentTime;
-    } else {
-        // currentTime is choppy in Firefox.
-        if (lastSeenCurrentTime != audio.currentTime) {
-            lastSeenCurrentTime = audio.currentTime;
-            currentTime = lastSeenCurrentTime;
-        } else {
-            if (audio.paused === false) {
-                currentTime += deltaSeconds;
-                currentTime = Math.min(currentTime, lastSeenCurrentTime + 0.25);
-            }
-        }
-    }
-    */
-
-   currentTime = lastCurrentTime + dTime * (performance.now() / 1000 - lastTime);
+    // Extrapolate the last time value we got from the audio
+    currentTime = lastCurrentTime + dTime * (performance.now() / 1000 - lastTime);
 
     for(var i=0; i<targets.length; i++){
         var target = targets[i];
@@ -399,7 +389,7 @@ function drawLifeBar(){
     var life = actualPoints / possiblePoints;
     var barWidth = life * maxBarWidth;
     barWidth = barWidth > 0 ? barWidth : 0;
-    //barSprite.draw(canvas, 0, barWidth / 2, 32/2 - 12, barWidth, 1, 0, 1);
+    barSprite.draw(canvas, 0, barWidth / 2, 32/2 - 12, barWidth, 3, 0, 1);
 }
 
 function drawNoteField() {
@@ -408,6 +398,7 @@ function drawNoteField() {
     var arrowSpacing = arrowSize * scrollSpeed;
     var distFromNearestBeat = Math.abs(musicBeat - Math.round(musicBeat));
     var lit = distFromNearestBeat < 0.1;
+
     for(var i=0; i<targets.length; i++){
         var target = targets[i];
         target.props.frameIndex = lit ? 0 : 1;
@@ -441,5 +432,15 @@ function drawNoteField() {
             }
             noteSprite.draw(canvas, thisNoteFrameIndex, colInfo.x, y, 1, 1, colInfo.rotation, alpha);
         }
+    }
+}
+
+
+// Sending messages to the iframe
+var frame = document.getElementById('frame');
+
+function messageFrame(message){
+    if(frame){
+        frame.contentWindow.postMessage(message, '*');
     }
 }
