@@ -65,28 +65,14 @@
 				client_id: '<%-scClientId%>'
 			});
 
-			// Try getting a list of public songs with BPM defined
-			SC.get('/tracks', {
-				filter: 'public',
-				bpm: {
-					from: 40,
-					to: 300
-				},
-				duration: {
-					from: 60 * 1000
-				}
-			}, function (result){
-				console.log(result)
-
-				SC.get("/tracks/<%-soundCloudSong%>", {}, function (sound){
-					var src = sound.stream_url + '?client_id=<%-scClientId%>';
-					var audio = document.getElementById('audio_with_controls');
-					audio.setAttribute("src", src);
-					audio.play();
-					song.bpm = sound.bpm;
-					startGame();
-					console.log(sound)
-				});
+			SC.get("/tracks/<%-soundCloudSong%>", {}, function (sound){
+				var src = sound.stream_url + '?client_id=<%-scClientId%>';
+				var audio = document.getElementById('audio_with_controls');
+				audio.setAttribute("src", src);
+				audio.play();
+				song.bpm = sound.bpm;
+				startGame();
+				console.log(sound)
 			});
 		<% } %>
 	</script>

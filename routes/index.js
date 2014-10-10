@@ -34,12 +34,17 @@ exports.play = function(req, res, next){
 	var scSong = req.query.scSong;
 	var backgroundUrl = req.query.bg || false;
 
-	res.render('play', {
+	var opts = {
 		songId: songId,
-		soundCloudSong: scSong,
 		backgroundUrl: backgroundUrl,
 		scClientId: clientId
-	});
+	};
+
+	if(scSong){
+		opts.soundCloudSong = scSong;
+	}
+
+	res.render('play', opts);
 };
 
 /**
