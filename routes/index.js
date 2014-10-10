@@ -29,9 +29,11 @@ exports.index = function(req, res, next){
  */
 exports.play = function(req, res, next){
 	var songId = parseInt(req.query.songId, 10);
+	var backgroundUrl = req.query.bg || false;
 
 	res.render('play', {
-		songId: songId
+		songId: songId,
+		backgroundUrl: backgroundUrl
 	});
 };
 
