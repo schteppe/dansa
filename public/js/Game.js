@@ -162,14 +162,15 @@ if (text) {
 function adjustSync(delta) {
     addToMusicPositionSeconds += delta;
     console.log("adjustSync " + addToMusicPositionSeconds + ", " + delta);
-    $("#offset-row").show();
-    $("#offset").text(addToMusicPositionSeconds.toFixed(2));
+    //$("#offset-row").show();
+    //$("#offset").text(addToMusicPositionSeconds.toFixed(2));
 }
 
 var autoSync = false;
 function toggleAutosync() {
     autoSync = !autoSync;
-    $("#autosync-row").toggle(autoSync);
+    console.log('autoSync',autoSync);
+    //$("#autosync-row").toggle(autoSync);
 }
 
 var autoSyncOffByHistory = [];
@@ -247,6 +248,7 @@ function step(col) {
 }
 
 $(document).ready(function () {
+    /*
     if (window.Touch) {
         $('#button0')[0].ontouchstart = function (e) { step(0); };
         $('#button1')[0].ontouchstart = function (e) { step(1); };
@@ -258,6 +260,7 @@ $(document).ready(function () {
         $('#button2').click(function (e) { step(2); });
         $('#button3').click(function (e) { step(3); });
     }
+    */
 
     $(document).keydown(function (event) {
         var anyInputHasFocus = $('input[type]:focus').length > 0;
@@ -279,7 +282,19 @@ $(document).ready(function () {
             case 50/*2*/: scrollSpeed=2; break;
             case 51/*3*/: scrollSpeed=3; break;
             case 52/*4*/: scrollSpeed=4; break;
+            case 82/*r*/:
+                lastCurrentTime = 0;
+                lastTime = performance.now() / 1000;
+                lastNow = performance.now();
+                dTime = 1;
+                audio.currentTime = currentTime = 0;
+                numTapNoteScores = 0;
+                actualPoints = 0;
+                currentCombo = 0;
+                maxCombo = 0;
+                break;
         }
+
         if (undefined != col) {
             step(col);
             event.preventDefault();
