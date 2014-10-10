@@ -1,4 +1,5 @@
 var fs = require('fs');
+var clientId = 'dd05cd4c464c2594f4875132abf36798';
 
 /**
  * GET /
@@ -19,7 +20,8 @@ exports.index = function(req, res, next){
 		});
 
 		res.render('index', {
-			songs: files
+			songs: files,
+			scClientId: clientId
 		});
 	});
 };
@@ -29,11 +31,14 @@ exports.index = function(req, res, next){
  */
 exports.play = function(req, res, next){
 	var songId = parseInt(req.query.songId, 10);
+	var scSong = req.query.scSong;
 	var backgroundUrl = req.query.bg || false;
 
 	res.render('play', {
 		songId: songId,
-		backgroundUrl: backgroundUrl
+		soundCloudSong: scSong,
+		backgroundUrl: backgroundUrl,
+		scClientId: clientId
 	});
 };
 
