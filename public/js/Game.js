@@ -31,6 +31,7 @@ var lastNow = performance.now();
 var uptimeSeconds = 0;
 var framesInCurrentSecond = 0;
 var arrowSize = 64;
+var songEnd = false;
 
 var colInfos = [
     { x: 64 + 64 * 0, y: 32*2, rotation: 90 },
@@ -109,11 +110,10 @@ function handleTapNoteScore(tapNoteScore) {
             .animate({ alpha: 0 }, 0.2);
     }
 
-    /*
-    //if (numTapNoteScores == 10)
-    if (numTapNoteScores == noteData.length)
-        saveHighScore(percent);
-    */
+    if (numTapNoteScores == noteData.length){
+        //saveHighScore(percent);
+        songEnd = true;
+    }
 }
 
 targets = [];
@@ -326,7 +326,8 @@ audio.addEventListener('timeupdate', function(evt){
         type: 'timeupdate',
         time: lastCurrentTime,
         addToMusicPositionSeconds: addToMusicPositionSeconds,
-        beatsPerSec: beatsPerSec
+        beatsPerSec: beatsPerSec,
+        songEnd: songEnd
     });
 });
 

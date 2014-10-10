@@ -7,12 +7,27 @@
     <h1>Dansa</h1>
     <p>A dance game, greatly inspired by StepMania! Songs and steps are borrowed from <a href="http://stepmania.com">stepmania.com</a>.</p>
 
-    <ul>
-    <% for(var i=0; i<songs.length; i++){ %>
-        <li>
-            <a href="/play?songId=<%=songs[i]%>">PLAY SONG <%=songs[i]%></a>
-        </li>
-    <% } %>
-    </ul>
+    <h2>Play!</h2>
+    <form method="GET" action="play">
+        <div class="form-group">
+            <label>Song</label>
+            <select name="songId">
+                <% for(var i=0; i<songs.length; i++){ %>
+                    <option>
+                        <%=songs[i]%>
+                    </option>
+                <% } %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Background iframe URL</label>
+            <input type="text" name="bg" value="https://goote.ch/e496320b529a499bb6b5e65b95e4749c.project/" />
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="PLAY" />
+        </div>
+    </form>
 </body>
 </html>
