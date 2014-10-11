@@ -1,5 +1,4 @@
 var fs = require('fs');
-var clientId = 'dd05cd4c464c2594f4875132abf36798';
 
 /**
  * GET /
@@ -21,7 +20,7 @@ exports.index = function(req, res, next){
 
 		res.render('index', {
 			songs: files,
-			scClientId: clientId
+			scClientId: process.env.DANSA_SC_CLIENT_ID
 		});
 	});
 };
@@ -37,7 +36,7 @@ exports.play = function(req, res, next){
 	var opts = {
 		songId: songId,
 		backgroundUrl: backgroundUrl,
-		scClientId: clientId
+		scClientId: process.env.DANSA_SC_CLIENT_ID
 	};
 
 	if(scSong){
