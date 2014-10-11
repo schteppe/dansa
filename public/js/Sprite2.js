@@ -56,6 +56,7 @@
     };
   }
 
+
   Sprite.load = function (url, options) {
     var img = new Image();
     var proxy = LoaderProxy();
