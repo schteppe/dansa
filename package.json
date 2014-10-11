@@ -2,6 +2,10 @@
   "name": "dansa",
   "version": "0.0.0",
   "description": "dance game",
+  "repository" : {
+    "type" : "git",
+    "url" : "http://github.com/schteppe/dansa"
+  },
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
