@@ -2,7 +2,7 @@
  * Loads/saves keymaps, keeps track of gamepad state.
  * @todo : keep track of prev state
  */
-DANSA.GameInput = function(){
+DANSA.GameInput = function(game){
 	var that = this;
 	DANSA.EventEmitter.call(this);
 
@@ -30,6 +30,60 @@ DANSA.GameInput = function(){
 
 	this.isSetUp = false;
 	this.loadKeymaps();
+
+
+
+	// $(document).keydown(function (event) {
+	// 	var anyInputHasFocus = $('input[type]:focus').length > 0;
+	// 	if (anyInputHasFocus)
+	// 		return;
+
+	// 	var keyCode = event.which;
+
+	// 	var col;
+	// 	switch (keyCode) {
+	// 	case 65/*d*/: case 37: col = 0; break;
+	// 	case 87/*w*/: case 38: col = 2; break;
+	// 	case 68/*d*/: case 39: col = 3; break;
+	// 	case 83/*s*/: case 40: col = 1; break;
+	// 	case 220/*back slash*/: toggleAutosync(); break;
+	// 	case 219/*open bracket*/: adjustSync(-0.01); break;
+	// 	case 221/*close bracket*/: adjustSync(0.01); break;
+	// 	case 49/*1*/: scrollSpeed=1; break;
+	// 	case 50/*2*/: scrollSpeed=2; break;
+	// 	case 51/*3*/: scrollSpeed=3; break;
+	// 	case 52/*4*/: scrollSpeed=4; break;
+	// 	case 188/*,*/:
+	// 		if(beatDetector){
+	// 			beatDetector.reset();
+	// 		}
+	// 		break;
+	// 	case 190/*.*/:
+	// 		if(!beatDetector){
+	// 			beatDetector = new DANSA.BeatDetector();
+	// 			console.log('reset beatdetector');
+	// 		}
+	// 		beatDetector.addQuarter(currentTime);
+	// 		console.log('BPM:', beatDetector.bpm);
+	// 		break;
+	// 	case 82/*r*/:
+	// 		lastCurrentTime = 0;
+	// 		lastTime = performance.now() / 1000;
+	// 		lastNow = performance.now();
+	// 		dTime = 1;
+	// 		audio.currentTime = currentTime = 0;
+	// 		numTapNoteScores = 0;
+	// 		actualPoints = 0;
+	// 		currentCombo = 0;
+	// 		maxCombo = 0;
+	// 		break;
+	// 	}
+
+	// 	if (undefined != col) {
+	// 		step(col);
+	// 		event.preventDefault();
+	// 	}
+	// });
 };
 
 DANSA.GameInput.prototype = new DANSA.EventEmitter();

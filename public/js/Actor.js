@@ -1,4 +1,7 @@
-function Actor(imgUrl, fileInfo, props) {
+DANSA.Actor = Actor;
+
+function Actor(context, imgUrl, fileInfo, props) {
+    this.context = context;
     this.props = {
         x: 0,
         y: 0,
@@ -19,7 +22,7 @@ function Actor(imgUrl, fileInfo, props) {
 }
 
 Actor.prototype.draw = function () {
-    this.sprite.draw(canvas, this.props.frameIndex, this.props.x, this.props.y, this.props.scaleX, this.props.scaleY, this.props.rotation, this.props.alpha);
+    this.sprite.draw(this.context, this.props.frameIndex, this.props.x, this.props.y, this.props.scaleX, this.props.scaleY, this.props.rotation, this.props.alpha);
 };
 
 Actor.prototype.update = function (deltaSeconds) {

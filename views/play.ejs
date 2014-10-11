@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Dansa</title>
+	<title><%=process.env.DANSA_TITLE%></title>
 	<link href="/css/screen.css" media="all" rel="stylesheet" type="text/css" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 	<style>
@@ -48,17 +48,27 @@
 	%><script src="//connect.soundcloud.com/sdk.js" type="text/javascript"></script>
 	<% }
 	%><script type='text/javascript' src="/js/Dansa.js"></script>
-	<script type='text/javascript' src="/js/sprite.js"></script>
+	<script type='text/javascript' src="/js/Sprite.js"></script>
 	<script type='text/javascript' src="/js/Actor.js"></script>
 	<script type='text/javascript' src="/js/BeatDetector.js"></script>
 	<script type='text/javascript' src="/songs/<%=songId%>/song.js"></script>
 	<script type='text/javascript' src="/songs/<%=songId%>/steps.js"></script>
 	<script type='text/javascript' src="/js/Game.js"></script>
 	<script>
+
+		// Sending messages to the iframe
+		var frame = document.getElementById('frame');
+
 		<% if(typeof(soundCloudSong) == 'undefined'){ %>
-			startGame();
-			var audio = document.getElementById('audio_with_controls');
-			audio.play();
+			var game = new DANSA.Game({
+				audioURI: '/songs/<%=songId%>/music.mp3',
+				bpm: song.bpm,
+				notes: steps.noteData,
+				offsetSeconds: song.addToMusicPosition,
+				frame: frame
+			});
+			$(".canvas-container").append(game.domElement);
+
 		<% } else { %>
 			// Replace audio with SC stream
 			SC.initialize({
@@ -67,11 +77,16 @@
 
 			SC.get("/tracks/<%-soundCloudSong%>", {}, function (sound){
 				var src = sound.stream_url + '?client_id=<%-scClientId%>';
-				var audio = document.getElementById('audio_with_controls');
-				audio.setAttribute("src", src);
-				audio.play();
 				song.bpm = sound.bpm;
-				startGame();
+
+				var game = new DANSA.Game({
+					audioURI: src,
+					bpm: song.bpm,
+					notes: steps.noteData,
+					offsetSeconds: song.addToMusicPosition,
+					frame: frame
+				});
+				$(".canvas-container").append(game.domElement);
 			});
 		<% } %>
 	</script>

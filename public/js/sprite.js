@@ -28,7 +28,7 @@
         if (rotationDegrees != 0)
             canvas.rotate(rotationDegrees * 3.14159265358 / 180);
         if (scaleX != 0 | scaleY != 0)
-                canvas.scale(scaleX, scaleY);
+            canvas.scale(scaleX, scaleY);
         canvas.globalAlpha = alpha;
         canvas.drawImage(
           image,
@@ -78,6 +78,7 @@
   window.Sprite = function(url, options) {
       return Sprite.load(url, options);
   };
+  DANSA.Sprite = window.Sprite;
   window.Sprite.EMPTY = LoaderProxy();
   window.Sprite.load = Sprite.load;
 }());

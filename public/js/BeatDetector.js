@@ -6,7 +6,7 @@ DANSA.BeatDetector = function(){
 };
 
 DANSA.BeatDetector.prototype.reset = function(){
-	this.timeValues = this.bps = this.bpm = 0;
+	this.timeValues.length = this.bps = this.bpm = 0;
 };
 
 DANSA.BeatDetector.prototype.addQuarter = function(time){

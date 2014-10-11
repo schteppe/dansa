@@ -29,6 +29,15 @@ Database.prototype.sync = function(options, callback){
 	}, function (err, data) {
 		if (err) return callback(err);
 
+		var matches = data.match(/CREATE TABLE IF NOT EXISTS dansa_([a-zA-Z0-9_]+)/g);
+		var pre = '';
+		if(matches.length && process.env.DANSA_DB_FORCE_CREATE){
+			while (matches.length) {
+				var table = matches.pop().replace('CREATE TABLE IF NOT EXISTS ','');
+				pre += 'DROP TABLE IF EXISTS ' + table + ';\n';
+			}
+		}
+
 		if(options.force || process.env.DANSA_DB_FORCE_CREATE){
 			data = data.replace(/IF NOT EXISTS /g, '');
 		}
@@ -37,7 +46,8 @@ Database.prototype.sync = function(options, callback){
 			data = data.replace(/dansa_/g, process.env.DANSA_TABLE_PREFIX);
 		}
 
-		if(options.verbose){
+		data = pre + data;
+		if(options.verbose || process.env.DANSA_DB_VERBOSE_CREATE){
 			console.log(data);
 		}
 
