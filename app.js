@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 
 var routes = require('./routes');
+var db = require('./src/Database');
 
 var app = express();
 
@@ -22,6 +23,12 @@ app.get ('/', routes.index);
 app.get ('/play', routes.play);
 app.get ('/setup', routes.setup);
 
-app.listen(port, function() {
-    console.log("Listening on port " + port + " ("+app.get('env')+")");
+db.sync({
+	verbose: true
+}, function (err){
+	if(err) throw err;
+
+	app.listen(port, function() {
+		console.log("Listening on port " + port + " ("+app.get('env')+")");
+	});
 });
