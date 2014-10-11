@@ -4,8 +4,8 @@ var serveStatic = require('serve-static');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 
-var routes = require('./routes');
-var db = require('./src/Database');
+var routes = require(path.join(__dirname, 'routes'));
+var db = require(path.join(__dirname, 'src', 'Database'));
 
 var app = express();
 
