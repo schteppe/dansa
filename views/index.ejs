@@ -1,66 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title><%=process.env.DANSA_TITLE%></title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
+<% include head %>
 
-    <div class="container">
-        <div class="col-md-12">
-            <h1>Dansa</h1>
-            <p>A dance game, greatly inspired by StepMania! Songs and steps are borrowed from <a href="http://static.stepmania.com/browse.php?micro=1&sort=num_plays">stepmania.com</a>.</p>
-            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Dansa: A dance game for your browser, inspired by StepMania." data-via="schteppe">Tweet</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-        </div>
+    <div class="col-md-12">
+        <h1>Dansa</h1>
+        <p>A dance game, greatly inspired by StepMania! Songs and steps are borrowed from <a href="http://static.stepmania.com/browse.php?micro=1&sort=num_plays">stepmania.com</a>.</p>
+        <a href="https://twitter.com/share" class="twitter-share-button" data-text="Dansa: A dance game for your browser, inspired by StepMania." data-via="schteppe">Tweet</a>
 
-        <div class="col-md-6">
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+    </div>
 
-            <h2>Play!</h2>
+    <div class="col-md-6">
 
-            <form method="GET" action="/play">
-                <div class="form-group">
-                    <label>Steps</label>
-                    <select name="songId" class="form-control">
-                        <% for(var i=0; i<songs.length; i++){ %>
-                            <option value="<%=songs[i]%>">Steps <%=songs[i]%></option>
-                        <% } %>
-                    </select>
-                </div>
+        <h2>Play!</h2>
 
-                <div class="form-group">
-                    <label>Background iframe URL</label>
-                    <input class="form-control" type="text" name="bg" value="https://goote.ch/e496320b529a499bb6b5e65b95e4749c.project/" />
-                    <span class="help-block">An URL to embed in an iframe behind the notes. Leave empty to view the original image from the song. If you implement the iframe postMessage API as done in <a href="https://app.goocreate.com/schteppe/e496320b529a499bb6b5e65b95e4749c.project">this create project</a>, you can make your animations follow the beats!</span>
-                </div>
+        <form method="GET" action="/play">
+            <div class="form-group">
+                <label>Steps</label>
+                <select name="songId" class="form-control">
+                    <% for(var i=0; i<songs.length; i++){ %>
+                        <option value="<%=songs[i]%>">Steps <%=songs[i]%></option>
+                    <% } %>
+                </select>
+            </div>
 
-                <div class="form-group">
-                    <label>SoundCloud song</label>
-                    <select class="form-control" name="scSong" id="scSelect">
-                        <option value="">None</option>
-                    </select>
-                    <span class="help-block">If you pick one, it will replace the default song. Note: the BPM or beat offset may not be the best!</span>
-                </div>
+            <div class="form-group">
+                <label>Background iframe URL</label>
+                <input class="form-control" type="text" name="bg" value="https://goote.ch/e496320b529a499bb6b5e65b95e4749c.project/" />
+                <span class="help-block">An URL to embed in an iframe behind the notes. Leave empty to view the original image from the song. If you implement the iframe postMessage API as done in <a href="https://app.goocreate.com/schteppe/e496320b529a499bb6b5e65b95e4749c.project">this Goo Create project</a>, you can make your animations follow the beats!</span>
+            </div>
 
-                <div class="form-group">
-                    <input class="btn btn-primary" type="submit" value="PLAY!" />
-                </div>
-            </form>
-        </div>
+            <div class="form-group">
+                <label>SoundCloud song</label>
+                <select class="form-control" name="scSong" id="scSelect">
+                    <option value="">None</option>
+                </select>
+                <span class="help-block">If you pick one, it will replace the default song. Note: the BPM or beat offset may not be the best!</span>
+            </div>
 
-        <div class="col-md-6">
-            <img src="/img/dansa.png" class="img-responsive" />
-        </div>
+            <div class="form-group">
+                <input class="btn btn-primary" type="submit" value="PLAY!" />
+            </div>
+        </form>
+    </div>
 
-        <div class="col-md-12">
-            <hr>
-            <center>
-                <p>Built by <a href="http://twitter.com/schteppe">schteppe</a>.</p>
-            </center>
-        </div>
+    <div class="col-md-6">
+        <img src="/img/dansa.png" class="img-responsive" />
+    </div>
+
+    <div class="col-md-12">
+        <hr>
+        <center>
+            <p>Built by <a href="http://twitter.com/schteppe">schteppe</a>.</p>
+        </center>
     </div>
 
     <script src="http://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
@@ -105,6 +95,4 @@
         });
     </script>
 
-    <% include ga %>
-</body>
-</html>
+<% include foot %>
