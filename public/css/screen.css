@@ -121,3 +121,13 @@ body {
 #sm-micro #autosync-row {
     display: none;
 }
+
+#editor {
+	display: none;
+	position:absolute;
+	right: 0px;
+	top: 0px;
+	width:50%;
+	background-color: white;
+	padding:20px;
+}

@@ -2,8 +2,11 @@
 <html>
 <head>
 	<title><%=process.env.DANSA_TITLE%></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link href="/css/screen.css" media="all" rel="stylesheet" type="text/css" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 	<style>
 		body {
 			<% if(typeof(songId) !== 'undefined'){ %>
@@ -30,22 +33,22 @@
 
 		<div class="form-group">
 			<label>SoundCloud track ID</label>
-			<input type="number" min="1" class="form-control"><%=song.scId%></textarea>
+			<input type="number" min="1" class="form-control scid" value="<%=song.scid%>" />
 		</div>
 
 		<div class="form-group">
 			<label>BPM</label>
-			<input type="number" min="1" max="999" class="form-control"><%=song.bpm%></textarea>
+			<input type="number" min="1" max="999" class="form-control bpm" value="<%=song.bpm%>" />
 		</div>
 
 		<div class="form-group">
 			<label>Offset</label>
-			<input type="number" class="form-control"><%=song.offset%></textarea>
+			<input type="number" class="form-control offset" step="0.01" value="<%=song.posoffset%>" />
 		</div>
 
 		<div class="form-group">
 			<label>Notes</label>
-			<textarea class="form-control"><%=song.notes%></textarea>
+			<textarea class="form-control notes" rows="10"><%-JSON.stringify(JSON.parse(song.notes),2,2)%></textarea>
 		</div>
 
 	</div>
@@ -69,6 +72,7 @@
 	<script type='text/javascript' src="/songs/<%=songId%>/song.js"></script>
 	<script type='text/javascript' src="/songs/<%=songId%>/steps.js"></script>
 	<% } %>
+	<script type='text/javascript' src="/js/Note.js"></script>
 	<script type='text/javascript' src="/js/Game.js"></script>
 	<script>
 
@@ -85,21 +89,73 @@
 				var game = new DANSA.Game({
 					audioURI: sound.stream_url + '?client_id=<%-scClientId%>',
 					bpm: <%=song.bpm%>,
-					notes: <%-song.notes%>,
 					offsetSeconds: <%=song.posoffset%>,
 					frame: frame
 				});
+				game.parseNotes(<%-song.notes%>);
 				$(".canvas-container").append(game.domElement);
+
+				if(sound.artwork_url){
+					$("body").css({
+						"background-image": "url(" + sound.artwork_url.replace('large','t500x500') + ")",
+						'background-size': 640
+					});
+				}
+
+				var $bpm = $('#editor .bpm');
+				var $offset = $('#editor .offset');
+				var $notes = $('#editor .notes');
+				var $scid = $('#editor .scid');
+				$('#editor textarea, #editor input').bind('change keyup', function (evt){
+
+					// SoundCloud ID
+					var scid = parseFloat($scid.val());
+					if(!isNaN(scid) && scid > 0){
+						//game.setAudioURI(song.uri);
+						$scid.parent().removeClass('has-error');
+					} else {
+						$scid.parent().addClass('has-error');
+					}
+
+					// bpm
+					var bpm = parseFloat($bpm.val());
+					if(!isNaN(bpm) && bpm > 0){
+						game.bpm = bpm;
+						$bpm.parent().removeClass('has-error');
+					} else {
+						$bpm.parent().addClass('has-error');
+					}
+
+					// Offset
+					var offset = parseFloat($offset.val());
+					if(!isNaN(offset)){
+						game.offsetSeconds = offset;
+						$offset.parent().removeClass('has-error');
+					} else {
+						$offset.parent().addClass('has-error');
+					}
+
+					// Notes
+					var json = false;
+					try {
+						json = JSON.parse($notes.val());
+					} catch(err){}
+					if(json && game.parseNotes(json)){
+						$notes.parent().removeClass('has-error');
+					} else {
+						$notes.parent().addClass('has-error');
+					}
+				});
 			});
 
 		<% } else if(typeof(soundCloudSong) == 'undefined'){ %>
 			var game = new DANSA.Game({
 				audioURI: '/songs/<%=songId%>/music.mp3',
 				bpm: song.bpm,
-				notes: steps.noteData,
 				offsetSeconds: song.addToMusicPosition,
 				frame: frame
 			});
+			game.parseNotes(steps);
 			$(".canvas-container").append(game.domElement);
 
 		<% } else { %>
@@ -115,10 +171,10 @@
 				var game = new DANSA.Game({
 					audioURI: src,
 					bpm: song.bpm,
-					notes: steps.noteData,
 					offsetSeconds: song.addToMusicPosition,
 					frame: frame
 				});
+				game.parseNotes(steps);
 				$(".canvas-container").append(game.domElement);
 
 				if(sound.artwork_url){
@@ -129,6 +185,15 @@
 				}
 			});
 		<% } %>
+
+
+		$(window).keydown(function (event) {
+			var keyCode = event.which;
+			switch(keyCode){
+			case 69: $("#editor").toggle(); break;
+			}
+		});
+
 	</script>
     <% include ga %>
 </body>

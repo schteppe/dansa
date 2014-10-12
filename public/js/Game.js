@@ -29,7 +29,7 @@ DANSA.Game = function(options){
 
     this.context = el.getContext("2d");
     this.scrollSpeed = options.scrollSpeed || 2;
-    this.notes = options.notes || [];
+    this.notes = [];
     this.bpm = options.bpm || 70;
     this.offsetSeconds = options.offsetSeconds || 0;
     this.currentTime = 0;
@@ -55,7 +55,7 @@ DANSA.Game = function(options){
     this.tapNoteScores = [0, 0, 0, 0, 0, 0];
     this.numTapNoteScores = 0;
     this.actualPoints = 0;
-    this.possiblePoints = 3 * steps.noteData.length;
+    this.possiblePoints = 3 * this.notes.length;
     this.currentCombo = 0;
     this.maxCombo = 0;
     this.points = 0;
@@ -185,6 +185,100 @@ DANSA.Game = function(options){
     });
 };
 
+/**
+ * Parse note data.
+ * @param  {object} data
+ * @return {boonean}
+ */
+DANSA.Game.prototype.parseNotes = function(data) {
+    if(!data) return false;
+
+    if(Array.isArray(data.noteData)){
+        // Data from sm-micro
+
+        // Validate
+        for (var i = 0; i < data.noteData.length; i++) {
+            var noteData = data.noteData[i];
+
+            if(
+                !Array.isArray(noteData) ||
+                typeof(noteData[0]) !== 'number' ||
+                typeof(noteData[1]) !== 'number' ||
+                typeof(noteData[2]) !== 'object'
+            ){
+                return false;
+            }
+        }
+
+        // Insert
+        this.notes.length = 0;
+        for (var i = 0; i < data.noteData.length; i++) {
+            var noteData = data.noteData[i];
+            var note = new DANSA.Note({
+                beat: noteData[0],
+                column: noteData[1],
+                type: DANSA.Note.Types.TAP
+            });
+            this.notes.push(note);
+        }
+
+        return true;
+    }
+
+
+    if(Array.isArray(data) && Array.isArray(data[0]) && typeof(data[0][0]) === 'string'){
+        // new dansa data
+
+        // Validate
+        var reg = /^[0-3ML]{4}$/;
+        for (var i = 0; i < data.length; i++) {
+            var measure = data[i];
+
+            for (var j = 0; j < measure.length; j++) {
+                var steps = measure[j];
+
+                if(!steps.match(reg)){
+                    return false;
+                }
+            }
+        }
+
+        // Insert
+        this.notes.length = 0;
+        for (var i = 0; i < data.length; i++) {
+            var measure = data[i];
+
+            for (var j = 0; j < measure.length; j++) {
+                var steps = measure[j];
+
+                for (var column = 0; column < steps.length; column++) {
+                    var type = -1;
+                    switch(steps[column]){
+                    case '1': type = DANSA.Note.Types.TAP; break;
+                    case '2': type = DANSA.Note.Types.HOLD_START; break;
+                    case '3': type = DANSA.Note.Types.HOLD_END; break;
+                    case 'M': type = DANSA.Note.Types.MINE; break;
+                    case 'L': type = DANSA.Note.Types.LIFT; break;
+                    }
+
+                    if(type === -1){
+                        continue;
+                    }
+
+                    var note = new DANSA.Note({
+                        beat: i * 4 + 4 / steps.length * j,
+                        column: column,
+                        type: DANSA.Note.Types.TAP
+                    });
+
+                    this.notes.push(note);
+                }
+            }
+        }
+        return true;
+    }
+};
+
 DANSA.Game.prototype.setIncoming = function(angleDegrees) {
     if(typeof(angleDegrees) == 'undefined'){
         angleDegrees = -30;
@@ -222,7 +316,8 @@ DANSA.Game.prototype.goToTime = function(time) {
 
     for(var i=0; i<this.notes.length; i++){
         var note = this.notes[i];
-        delete note[2].tapNoteScore;
+        note.passed = false;
+        note.score = 0;
     }
 };
 
@@ -243,11 +338,10 @@ DANSA.Game.prototype.handleStep = function(col) {
     var tapNoteScore = 0;
     for (var i = 0; i < this.notes.length; i++) {
         var note = this.notes[i];
-        var noteBeat = note[0];
-        var noteCol = note[1];
-        var noteProps = note[2];
+        var noteBeat = note.beat;
+        var noteCol = note.column;
 
-        if ("tapNoteScore" in noteProps)
+        if (note.passed)
             continue;
 
         if (noteCol != col)
@@ -262,14 +356,16 @@ DANSA.Game.prototype.handleStep = function(col) {
         for (var j = 0; j < this.timingWindowSeconds.length; j++) {
             if (offBySecAbs <= this.timingWindowSeconds[j]) {
 
-                noteProps.tapNoteScore = j;
+                note.score = j;
+                note.passed = true;
                 tapNoteScore = j;
                 break;
             }
         }
 
-        if (this.autoSync)
+        if (this.autoSync){
             this.handleAutoSync(offBySec);
+        }
 
         hit = true;
         //$('#note' + i).css({ alpha: 0 });
@@ -338,7 +434,7 @@ DANSA.Game.prototype.handleTapNoteScore = function(tapNoteScore) {
         this.currentCombo = 0;
     }
 
-    if (tapNoteScore == 5) {
+    if (tapNoteScore === 5) {
         this.judgment
             .stop()
             .set({ frameIndex: tapNoteScore, scaleX: 1, scaleY: 1, y: 160, alpha: 1 })
@@ -400,12 +496,12 @@ DANSA.Game.prototype.updateInternal = function(deltaSeconds) {
     this.numMisses = 0;
     for(i = 0; i < this.notes.length; i++){
         var note = this.notes[i];
-        var noteBeat = note[0];
-        var noteProps = note[2];
+        var noteBeat = note.beat;
         if (noteBeat < missIfOlderThanBeat) {
-            if (!("tapNoteScore" in noteProps)) {
+            if (!note.passed) {
                 this.numMisses++;
-                noteProps.tapNoteScore = 5;
+                note.score = 5;
+                note.passed = true;
                 this.handleTapNoteScore(5);
             }
         }
@@ -458,9 +554,8 @@ DANSA.Game.prototype.drawNoteField = function() {
 
     for (var i = 0; i < this.notes.length; i++) {
         var note = this.notes[i];
-        var beat = note[0];
-        var col = note[1];
-        var noteProps = note[2];
+        var beat = note.beat;
+        var col = note.column;
         var colInfo = this.colInfos[col];
         var beatUntilNote = beat - musicBeat;
 
@@ -473,9 +568,10 @@ DANSA.Game.prototype.drawNoteField = function() {
             var thisNoteFrameIndex = Math.round(noteFrameIndex + frameOffset) % numNoteFrames;
             var y = this.targetsY + beatUntilNote * arrowSpacing;
             var alpha = 1;
-            if ("tapNoteScore" in noteProps) {
-                if (noteProps.tapNoteScore < 5)
+            if (note.passed) {
+                if (note.score < 5){
                     alpha = 0;
+                }
             }
             this.noteSprite.draw(this.context, thisNoteFrameIndex, colInfo.x, y, 1, 1, colInfo.rotation, alpha);
         }
