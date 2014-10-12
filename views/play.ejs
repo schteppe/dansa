@@ -22,21 +22,7 @@
 		<iframe frameBorder="0" class="background" id="frame" src="<%-backgroundUrl%>" width="640" height="480"></iframe>
 	</div>
 	<% } %>
-	<div id="sm-micro" class="canvas-container">
-		<!--
-		<div class="button" id="button0"></div>
-		<div class="button" id="button1"></div>
-		<div class="button" id="button2"></div>
-		<div class="button" id="button3"></div>
-		-->
-		<div id="bottom">
-			<audio id="audio_with_controls" autobuffer controls> <!-- autoplay -->
-				<source src="/songs/<%=songId%>/music.mp3" type="audio/mpeg" />
-				<source src="/songs/<%=songId%>/music.ogg" type="audio/ogg" />
-				Audio tag not supported
-			</audio>
-		</div>
-	</div>
+	<div id="sm-micro" class="canvas-container"></div>
 	<script type="text/javascript">
 		var imgDir = "img/";
 		<% if(typeof(soundCloudSong) !== 'undefined'){ %>
