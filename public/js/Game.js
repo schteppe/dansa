@@ -24,7 +24,7 @@ DANSA.Game = function(options){
 
     var el = document.createElement('CANVAS');
     el.width = options.width || 320;
-    el.height = options.height || window.innerHeight;
+    el.height = options.height || 480;
     this.domElement = el;
 
     this.context = el.getContext("2d");
@@ -121,21 +121,33 @@ DANSA.Game = function(options){
         });
     });
 
+    this.input = new DANSA.GameInput();
+
     this.startLoop();
     if(options.audioURI){
         this.setAudioURI(options.audioURI);
         this.play();
     }
 
+    var key2col = {};
+    key2col[DANSA.GameInput.Keys.LEFT] = 0;
+    key2col[DANSA.GameInput.Keys.DOWN] = 1;
+    key2col[DANSA.GameInput.Keys.UP] = 2;
+    key2col[DANSA.GameInput.Keys.RIGHT] = 3;
+    this.input.on('keydown', function (evt){
+        var col = key2col[evt.button];
+        that.handleStep(col);
+    });
+
     this.incomingAngle = 0;
     $(window).keydown(function (event) {
         var keyCode = event.which;
         var col = -1;
         switch (keyCode) {
-            case 65/*d*/: case 37: col = 0; break;
-            case 87/*w*/: case 38: col = 2; break;
-            case 68/*d*/: case 39: col = 3; break;
-            case 83/*s*/: case 40: col = 1; break;
+            // case 65/*d*/: case 37: col = 0; break;
+            // case 87/*w*/: case 38: col = 2; break;
+            // case 68/*d*/: case 39: col = 3; break;
+            // case 83/*s*/: case 40: col = 1; break;
             case 220/*back slash*/: that.autoSync = !that.autoSync; break;
             case 219/*open bracket*/: that.adjustSync(-0.01); break;
             case 221/*close bracket*/: that.adjustSync(0.01); break;
@@ -365,6 +377,8 @@ DANSA.Game.prototype.setAudioURI = function(uri) {
 };
 
 DANSA.Game.prototype.updateInternal = function(deltaSeconds) {
+
+    this.input.update();
 
     // Extrapolate the last time value we got from the audio
     this.currentTime = this.lastCurrentTime + this.dTime * (performance.now() / 1000 - this.lastTime);

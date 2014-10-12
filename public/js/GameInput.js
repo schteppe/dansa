@@ -33,64 +33,33 @@ DANSA.GameInput = function(game){
 
 
 
-	// $(document).keydown(function (event) {
-	// 	var anyInputHasFocus = $('input[type]:focus').length > 0;
-	// 	if (anyInputHasFocus)
-	// 		return;
+	$(document).keydown(function (event) {
+		var anyInputHasFocus = $('input[type]:focus').length > 0;
+		if (anyInputHasFocus)
+			return;
 
-	// 	var keyCode = event.which;
+		var keyCode = event.which;
 
-	// 	var col;
-	// 	switch (keyCode) {
-	// 	case 65/*d*/: case 37: col = 0; break;
-	// 	case 87/*w*/: case 38: col = 2; break;
-	// 	case 68/*d*/: case 39: col = 3; break;
-	// 	case 83/*s*/: case 40: col = 1; break;
-	// 	case 220/*back slash*/: toggleAutosync(); break;
-	// 	case 219/*open bracket*/: adjustSync(-0.01); break;
-	// 	case 221/*close bracket*/: adjustSync(0.01); break;
-	// 	case 49/*1*/: scrollSpeed=1; break;
-	// 	case 50/*2*/: scrollSpeed=2; break;
-	// 	case 51/*3*/: scrollSpeed=3; break;
-	// 	case 52/*4*/: scrollSpeed=4; break;
-	// 	case 188/*,*/:
-	// 		if(beatDetector){
-	// 			beatDetector.reset();
-	// 		}
-	// 		break;
-	// 	case 190/*.*/:
-	// 		if(!beatDetector){
-	// 			beatDetector = new DANSA.BeatDetector();
-	// 			console.log('reset beatdetector');
-	// 		}
-	// 		beatDetector.addQuarter(currentTime);
-	// 		console.log('BPM:', beatDetector.bpm);
-	// 		break;
-	// 	case 82/*r*/:
-	// 		lastCurrentTime = 0;
-	// 		lastTime = performance.now() / 1000;
-	// 		lastNow = performance.now();
-	// 		dTime = 1;
-	// 		audio.currentTime = currentTime = 0;
-	// 		numTapNoteScores = 0;
-	// 		actualPoints = 0;
-	// 		currentCombo = 0;
-	// 		maxCombo = 0;
-	// 		break;
-	// 	}
+		var button = -1;
+		switch (keyCode) {
+		case 87/*w*/: case 38: button = DANSA.GameInput.Keys.UP; break;
+		case 65/*a*/: case 37: button = DANSA.GameInput.Keys.LEFT; break;
+		case 83/*s*/: case 40: button = DANSA.GameInput.Keys.DOWN; break;
+		case 68/*d*/: case 39: button = DANSA.GameInput.Keys.RIGHT; break;
+		}
 
-	// 	if (undefined != col) {
-	// 		step(col);
-	// 		event.preventDefault();
-	// 	}
-	// });
+		if(button !== -1){
+			var p = that.players[0];
+			p.buttonState = p.buttonState | button;
+		}
+	});
 };
-
 DANSA.GameInput.prototype = new DANSA.EventEmitter();
 
 DANSA.GameInput.prototype.addPlayer = function(){
 	this.players.push({
-		buttonState: 0
+		buttonState: 0,
+		lastButtonState: 0
 	});
 	return this.players.length - 1;
 };
@@ -103,7 +72,7 @@ DANSA.GameInput.prototype.update = function(){
 	this.scanGamepads();
 
 	// Set all button states to unpressed
-
+	/*
 	for(var idx in this.controllers){
 		var controller = this.controllers[idx];
 		for (var i = 0; i<controller.buttons.length; i++) {
@@ -117,6 +86,7 @@ DANSA.GameInput.prototype.update = function(){
 			}
 		}
 	}
+	*/
 
 	for(var idx in this.controllers){
 		var controller = this.controllers[idx];
@@ -150,6 +120,34 @@ DANSA.GameInput.prototype.update = function(){
 	if(this.mappingKey > 0){
 		this.endMap();
 	}
+
+	// Emit keydown event
+	for (var i = 0; i < this.players.length; i++) {
+		var p = this.players[i];
+		for(var ki in DANSA.GameInput.Keys){
+			var key = DANSA.GameInput.Keys[ki];
+			if(!(p.lastButtonState & key) && (p.buttonState & key)){
+				var evt = DANSA.GameInput.keydownEvent;
+				evt.player = i;
+				evt.button = key;
+				this.emit(evt);
+			}
+		}
+	}
+
+	// Move all "buttonState" to "lastButtonState"
+	for (var i = 0; i < this.players.length; i++) {
+		var p = this.players[i];
+		p.lastButtonState = p.buttonState;
+		p.buttonState = 0; // Unpressed
+	}
+
+};
+
+DANSA.GameInput.keydownEvent = {
+	type: 'keydown',
+	player: 0,
+	button: 0
 };
 
 DANSA.GameInput.prototype.addGamepad = function(gamepad){
