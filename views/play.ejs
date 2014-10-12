@@ -48,9 +48,9 @@
 	%><script src="//connect.soundcloud.com/sdk.js" type="text/javascript"></script>
 	<% }
 	%><script type='text/javascript' src="/js/Dansa.js"></script>
-	%><script type='text/javascript' src="/js/Utils.js"></script>
-	%><script type='text/javascript' src="/js/EventEmitter.js"></script>
-	%><script type='text/javascript' src="/js/GameInput.js"></script>
+	<script type='text/javascript' src="/js/Utils.js"></script>
+	<script type='text/javascript' src="/js/EventEmitter.js"></script>
+	<script type='text/javascript' src="/js/GameInput.js"></script>
 	<script type='text/javascript' src="/js/Sprite.js"></script>
 	<script type='text/javascript' src="/js/Actor.js"></script>
 	<script type='text/javascript' src="/js/BeatDetector.js"></script>
@@ -90,6 +90,13 @@
 					frame: frame
 				});
 				$(".canvas-container").append(game.domElement);
+
+				if(sound.artwork_url){
+					$("body").css({
+						"background-image": "url(" + sound.artwork_url + ")",
+						'background-size': 640
+					});
+				}
 			});
 		<% } %>
 	</script>
