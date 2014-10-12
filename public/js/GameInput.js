@@ -31,12 +31,11 @@ DANSA.GameInput = function(game){
 	this.isSetUp = false;
 	this.loadKeymaps();
 
-
-
 	$(document).keydown(function (event) {
-		var anyInputHasFocus = $('input[type]:focus').length > 0;
-		if (anyInputHasFocus)
+		var activeName = document.activeElement.nodeName;
+		if(activeName === 'INPUT' || activeName === 'TEXTAREA'){
 			return;
+		}
 
 		var keyCode = event.which;
 

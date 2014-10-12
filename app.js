@@ -20,9 +20,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get ('/', routes.index);
-app.get ('/songs/:id/play', routes.playSong);
 app.get ('/play', routes.play);
+app.post('/save', routes.save);
 app.get ('/setup', routes.setup);
+app.get ('/songs/:id/play', routes.playSong);
 
 db.sync({
 	verbose: true

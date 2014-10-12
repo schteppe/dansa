@@ -2,11 +2,11 @@
 <html>
 <head>
 	<title><%=process.env.DANSA_TITLE%></title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link href="/css/screen.css" media="all" rel="stylesheet" type="text/css" />
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<style>
 		body {
 			<% if(typeof(songId) !== 'undefined'){ %>
@@ -31,26 +31,42 @@
 	<% if(typeof(song) !== 'undefined'){ %>
 	<div id="editor">
 
-		<div class="form-group">
-			<label>SoundCloud track ID</label>
-			<input type="number" min="1" class="form-control scid" value="<%=song.scid%>" />
-		</div>
+		<form method="POST" action="/save">
 
-		<div class="form-group">
-			<label>BPM</label>
-			<input type="number" min="1" max="999" class="form-control bpm" value="<%=song.bpm%>" />
-		</div>
+			<div class="form-group">
+				<label>SoundCloud track ID</label>
+				<input name="scid" type="number" min="1" class="form-control scid" value="<%=song.scid%>" />
+			</div>
 
-		<div class="form-group">
-			<label>Offset</label>
-			<input type="number" class="form-control offset" step="0.01" value="<%=song.posoffset%>" />
-		</div>
+			<div class="form-group">
+				<label>BPM</label>
+				<input name="bpm" type="number" min="1" max="999" class="form-control bpm" value="<%=song.bpm%>" />
+			</div>
 
-		<div class="form-group">
-			<label>Notes</label>
-			<textarea class="form-control notes" rows="10"><%-JSON.stringify(JSON.parse(song.notes),2,2)%></textarea>
-		</div>
+			<div class="form-group">
+				<label>Offset</label>
+				<input name="posoffset" type="number" class="form-control offset" step="0.01" value="<%=song.posoffset%>" />
+			</div>
 
+			<div class="form-group">
+				<label>Notes</label>
+				<textarea name="notes" class="form-control notes" rows="10"><%-JSON.stringify(JSON.parse(song.notes),2,2)%></textarea>
+			</div>
+
+			<script type="text/javascript" src="http://www.google.com/recaptcha/api/challenge?k=<%=process.env.DANSA_RECAPTCHA_PUBLIC_KEY%>">
+			</script>
+			<noscript>
+				<iframe src="http://www.google.com/recaptcha/api/noscript?k=<%=process.env.DANSA_RECAPTCHA_PUBLIC_KEY%>" height="300" width="400" frameborder="0"></iframe>
+				<textarea name="recaptcha_challenge_field" rows="3" cols="40">
+				</textarea>
+				<input type="hidden" id="register_captcha" required name="recaptcha_response_field" value="manual_challenge">
+			</noscript>
+
+			<div class="form-group">
+				<input type="submit" class="btn btn-primary" value="Save" />
+			</div>
+
+		</form>
 	</div>
 	<% } %>
 	<script type="text/javascript">
@@ -188,6 +204,10 @@
 
 
 		$(window).keydown(function (event) {
+			var activeName = document.activeElement.nodeName;
+			if(activeName === 'INPUT' || activeName === 'TEXTAREA'){
+				return;
+			}
 			var keyCode = event.which;
 			switch(keyCode){
 			case 69: $("#editor").toggle(); break;
@@ -195,6 +215,6 @@
 		});
 
 	</script>
-    <% include ga %>
+	<% include ga %>
 </body>
 </html>

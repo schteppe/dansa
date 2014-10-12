@@ -141,6 +141,10 @@ DANSA.Game = function(options){
 
     this.incomingAngle = 0;
     $(window).keydown(function (event) {
+        var activeName = document.activeElement.nodeName;
+        if(activeName === 'INPUT' || activeName === 'TEXTAREA'){
+            return;
+        }
         var keyCode = event.which;
         var col = -1;
         switch (keyCode) {

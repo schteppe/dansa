@@ -10,5 +10,7 @@ Install Node.js and the Heroku toolbelt. Install the npm dependencies via ```npm
  * ```DANSA_GA_ID```: Set to for example "UA-XXXXXXXX-X" and Google Analytics code will be inserted in all pages.
  * ```DANSA_TABLE_PREFIX```: Table prefix for the database. Default is 'dansa_'
  * ```DANSA_TITLE```: Title of the site.
+ * ```DANSA_RECAPTCHA_PUBLIC_KEY```: ReCaptcha public key
+ * ```DANSA_RECAPTCHA_PRIVATE_KEY```: ReCaptcha private key
 
 Start the server with ```foreman start```.

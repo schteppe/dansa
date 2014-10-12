@@ -343,6 +343,10 @@
         }
       }
     },
+    "recaptcha": {
+      "version": "1.2.0",
+      "from": "recaptcha@"
+    },
     "serve-static": {
       "version": "1.6.4",
       "from": "serve-static@",
