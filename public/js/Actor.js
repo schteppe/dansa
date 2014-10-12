@@ -1,6 +1,4 @@
-DANSA.Actor = Actor;
-
-function Actor(context, imgUrl, fileInfo, props) {
+DANSA.Actor = function (context, imgUrl, fileInfo, props) {
     this.context = context;
     this.props = {
         x: 0,
@@ -11,7 +9,7 @@ function Actor(context, imgUrl, fileInfo, props) {
         alpha: 1,
         frameIndex: 0
     };
-    merge(this.props, props);
+    DANSA.Utils.merge(this.props, props);
 
     this.sprite = Sprite(imgUrl, fileInfo);
     this.queuedKeyFrames = [];
@@ -19,27 +17,27 @@ function Actor(context, imgUrl, fileInfo, props) {
     this.intoAnimationSeconds = undefined;
     this.beginProps = undefined;
     this.endProps = undefined;
-}
+};
 
-Actor.prototype.draw = function () {
+DANSA.Actor.prototype.draw = function () {
     this.sprite.draw(this.context, this.props.frameIndex, this.props.x, this.props.y, this.props.scaleX, this.props.scaleY, this.props.rotation, this.props.alpha);
 };
 
-Actor.prototype.update = function (deltaSeconds) {
+DANSA.Actor.prototype.update = function (deltaSeconds) {
     if (this.queuedKeyFrames.length > 0) {
         if (undefined === this.durationSeconds) {
             var keyFrame = this.queuedKeyFrames.shift();
             this.durationSeconds = keyFrame.durationSeconds;
             this.intoAnimationSeconds = 0;
-            this.beginProps = deepCopy(this.props);
-            this.endProps = deepCopy(keyFrame.props);
+            this.beginProps = DANSA.Utils.deepCopy(this.props);
+            this.endProps = DANSA.Utils.deepCopy(keyFrame.props);
         }
     }
     if (undefined !== this.durationSeconds) {
         this.intoAnimationSeconds += deltaSeconds;
         var percentThrough = this.intoAnimationSeconds / this.durationSeconds;
         if (percentThrough >= 1) {
-            merge(this.props, this.endProps);
+            DANSA.Utils.merge(this.props, this.endProps);
             this._endKeyframe();
         } else {
             var attrs = Object.keys(this.endProps);
@@ -56,33 +54,33 @@ Actor.prototype.update = function (deltaSeconds) {
     }
 };
 
-Actor.prototype.set = function (props) {
-    merge(this.props, props);
+DANSA.Actor.prototype.set = function (props) {
+    DANSA.Utils.merge(this.props, props);
     return this;
 };
 
-Actor.prototype.animate = function (props, sec) {
+DANSA.Actor.prototype.animate = function (props, sec) {
     var keyFrame = {
-        props: deepCopy(props),
+        props: DANSA.Utils.deepCopy(props),
         durationSeconds: sec,
     };
     this.queuedKeyFrames.push(keyFrame);
     return this;
 };
 
-Actor.prototype.stop = function () {
+DANSA.Actor.prototype.stop = function () {
     this._endKeyframe();
     this.queuedKeyFrames = [];
     return this;
 };
 
-Actor.prototype.finish = function () {
+DANSA.Actor.prototype.finish = function () {
     this._endKeyframe();
     this.queuedKeyFrames = [];
     return this;
 };
 
-Actor.prototype._endKeyframe = function () {
+DANSA.Actor.prototype._endKeyframe = function () {
     this.durationSeconds = undefined;
     this.intoAnimationSeconds = undefined;
     this.beginProps = undefined;
