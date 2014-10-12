@@ -7,7 +7,8 @@ body {
     background-repeat: no-repeat;
 }
 #sm-micro {
-    width: 100%;
+	perspective: 640px;
+    width: 320px;
     height: 100%;
     /* background-position: -160px -25px; */
 

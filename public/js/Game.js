@@ -127,7 +127,7 @@ DANSA.Game = function(options){
         this.play();
     }
 
-
+    this.incomingAngle = 0;
     $(window).keydown(function (event) {
         var keyCode = event.which;
         var col = -1;
@@ -143,6 +143,10 @@ DANSA.Game = function(options){
             case 50/*2*/: that.scrollSpeed=2; break;
             case 51/*3*/: that.scrollSpeed=3; break;
             case 52/*4*/: that.scrollSpeed=4; break;
+            case 53/*5*/:
+                that.incomingAngle = that.incomingAngle === 0 ? -30 : 0;
+                that.setIncoming(that.incomingAngle);
+                break;
             case 188/*,*/:
                 if(that.beatDetector){
                     console.log('reset beatdetector');
@@ -166,6 +170,19 @@ DANSA.Game = function(options){
             that.handleStep(col);
             event.preventDefault();
         }
+    });
+};
+
+DANSA.Game.prototype.setIncoming = function(angleDegrees) {
+    if(typeof(angleDegrees) == 'undefined'){
+        angleDegrees = -30;
+    }
+    $(this.domElement).css({
+        'transform' : 'rotateX(' + angleDegrees + 'deg)',
+        '-ms-transform' : 'rotateX(' + angleDegrees + 'deg)',
+        '-moz-transform' : 'rotateX(' + angleDegrees + 'deg)',
+        '-webkit-transform' : 'rotateX(' + angleDegrees + 'deg)',
+        '-o-transform' : 'rotateX(' + angleDegrees + 'deg)'
     });
 };
 
