@@ -93,7 +93,7 @@
 
 				if(sound.artwork_url){
 					$("body").css({
-						"background-image": "url(" + sound.artwork_url + ")",
+						"background-image": "url(" + sound.artwork_url.replace('large','t500x500') + ")",
 						'background-size': 640
 					});
 				}
