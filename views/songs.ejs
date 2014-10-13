@@ -1,0 +1,17 @@
+<% include head %>
+
+    <div class="col-md-12">
+        <h1>Songs</h1>
+        <ul>
+            <% for(var i=0; i<songs.rows.length; i++){
+                var song = songs.rows[i]; %>
+            <li>
+                <a href="/songs/<%-song.id%>">
+                    Song <%-song.id%>
+                </a>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+
+<% include foot %>

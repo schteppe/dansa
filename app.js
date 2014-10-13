@@ -23,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get ('/', routes.index);
 app.get ('/play', routes.play);
 app.get ('/setup', routes.setup);
+app.get ('/songs', routes.listSongs);
 app.get ('/songs/new', routes.newSong);
 app.post('/songs/new', routes.save);
 app.get ('/songs/:id', Middleware.getSong(), routes.viewSong);

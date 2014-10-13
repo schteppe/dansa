@@ -170,3 +170,14 @@ exports.save = function(req, res, next){
 		});
 	});
 };
+
+exports.listSongs = function(req, res, next){
+	var sql = "SELECT * FROM dansa_songs OFFSET 0 LIMIT 200";
+	Database.query(sql, [], function (err, result){
+		if(err) return next(err);
+
+		res.render('songs', {
+			songs: result
+		});
+	});
+};
