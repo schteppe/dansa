@@ -283,6 +283,11 @@
         }
       }
     },
+    "jsonschema": {
+      "version": "1.0.0",
+      "from": "jsonschema@",
+      "resolved": "https://registry.npmjs.org/jsonschema/-/jsonschema-1.0.0.tgz"
+    },
     "pg": {
       "version": "3.5.0",
       "from": "pg@",

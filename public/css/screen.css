@@ -123,11 +123,12 @@ body {
 }
 
 #editor {
-	display: none;
 	position:absolute;
 	right: 0px;
 	top: 0px;
 	width:50%;
+	height:100%;
 	background-color: white;
 	padding:20px;
+	overflow: scroll;
 }

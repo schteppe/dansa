@@ -33,12 +33,17 @@ DANSA.Game = function(options){
     this.bpm = options.bpm || 70;
     this.offsetSeconds = options.offsetSeconds || 0;
     this.currentTime = 0;
+    this.playing = false;
 
     this.lastNow = performance.now();
     this.uptimeSeconds = 0;
     this.framesInCurrentSecond = 0;
     this.arrowSize = 64;
     this.songEnd = false;
+
+    this.loop = false;
+    this.loopStartBeat = 0;
+    this.loopNumBeats = 4;
 
     this.colInfos = [
         { x: 64 + 64 * 0, y: 32*2, rotation: 90 },
@@ -106,12 +111,12 @@ DANSA.Game = function(options){
     this.lastCurrentTime = 0;
     this.lastTime = performance.now() / 1000;
     this.dTime = 1;
-    this.audioElement.addEventListener('timeupdate', function(evt){
+    this.audioElement.addEventListener('timeupdate', function (evt){
+        that.playing = true;
         var now = performance.now() / 1000;
         that.dTime = (that.audioElement.currentTime - that.lastCurrentTime) / (now - that.lastTime);
         that.lastTime = now;
         that.lastCurrentTime = that.audioElement.currentTime;
-
         that.messageFrame({
             type: 'timeupdate',
             time: that.lastCurrentTime,
@@ -478,10 +483,25 @@ DANSA.Game.prototype.setAudioURI = function(uri) {
 
 DANSA.Game.prototype.updateInternal = function(deltaSeconds) {
 
+    // Read input
     this.input.update();
 
     // Extrapolate the last time value we got from the audio
-    this.currentTime = this.lastCurrentTime + this.dTime * (performance.now() / 1000 - this.lastTime);
+    if(this.playing){
+        this.currentTime = this.lastCurrentTime + this.dTime * (performance.now() / 1000 - this.lastTime);
+    }
+
+    // Check if we should go back to loop start
+    var beat = this.secondToBeat(this.currentTime);
+    var lastCurrentTimeBeat = this.secondToBeat(this.lastCurrentTime);
+    if(this.loop && beat > this.loopStartBeat + this.loopNumBeats){
+        this.lastCurrentTime = this.currentTime = this.beatToSecond(beat - this.loopNumBeats);
+
+        this.lastCurrentTime = -(performance.now() / 1000 - this.lastTime) * this.dTime + this.currentTime;
+
+        if(this.audioElement.readyState >= 1) // Seekable
+            this.audioElement.currentTime = this.currentTime;
+    }
 
     var i;
     for(i = 0; i < this.targets.length; i++){

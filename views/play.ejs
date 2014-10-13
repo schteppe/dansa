@@ -28,10 +28,13 @@
 	</div>
 	<% } %>
 	<div id="sm-micro" class="canvas-container"></div>
-	<% if(typeof(song) !== 'undefined'){ %>
+	<% if(typeof(song) !== 'undefined' && typeof(edit) !== 'undefined' && edit){ %>
 	<div id="editor">
+		<% if(typeof(errors) !== 'undefined' && errors.length){ %>
+		<div class="alert alert-danger" role="alert"><%-errors.join('<br/>')%></div>
+		<% } %>
 
-		<form method="POST" action="/save">
+		<form method="POST">
 
 			<div class="form-group">
 				<label>SoundCloud track ID</label>
@@ -46,6 +49,16 @@
 			<div class="form-group">
 				<label>Offset</label>
 				<input name="posoffset" type="number" class="form-control offset" step="0.01" value="<%=song.posoffset%>" />
+			</div>
+
+			<div class="form-group">
+				<label>Loop start (beat)</label>
+				<input type="number" class="form-control loopStartBeat" step="1" value="0" />
+			</div>
+
+			<div class="form-group">
+				<label>Loop number of beats</label>
+				<input type="number" class="form-control loopNumBeats" step="1" value="8" />
 			</div>
 
 			<div class="form-group">
@@ -95,74 +108,131 @@
 		// Sending messages to the iframe
 		var frame = document.getElementById('frame');
 
+		SC.initialize({
+			client_id: '<%-process.env.DANSA_SC_CLIENT_ID%>'
+		});
+
 		<% if(typeof(song) !== 'undefined'){ %>
 
-			SC.initialize({
-				client_id: '<%-scClientId%>'
+			var game = new DANSA.Game({
+				bpm: <%=song.bpm%>,
+				offsetSeconds: <%=song.posoffset%>,
+				frame: frame
 			});
+			game.parseNotes(<%-song.notes%>);
+			$(".canvas-container").append(game.domElement);
 
-			SC.get("/tracks/<%-song.scid%>", {}, function (sound){
-				var game = new DANSA.Game({
-					audioURI: sound.stream_url + '?client_id=<%-scClientId%>',
-					bpm: <%=song.bpm%>,
-					offsetSeconds: <%=song.posoffset%>,
-					frame: frame
-				});
-				game.parseNotes(<%-song.notes%>);
-				$(".canvas-container").append(game.domElement);
+			var currentSCID;
+			<% if(song.scid){ %>
+			currentSCID = <%-song.scid%>;
+			setSoundCloudSongId(currentSCID);
+			<% } %>
 
-				if(sound.artwork_url){
-					$("body").css({
-						"background-image": "url(" + sound.artwork_url.replace('large','t500x500') + ")",
-						'background-size': 640
-					});
+			var $bpm = $('#editor .bpm');
+			var $offset = $('#editor .offset');
+			var $notes = $('#editor .notes');
+			var $scid = $('#editor .scid');
+			var $loopStartBeat = $('#editor .loopStartBeat');
+			var $loopNumBeats = $('#editor .loopNumBeats');
+
+			<% if(typeof(edit) !== 'undefined' && edit){ %>
+				game.loop = true;
+				game.loopStartBeat = 0;
+				game.loopNumBeats = 16;
+			<% } %>
+
+			$('#editor textarea, #editor input').bind('change keyup', function (evt){
+
+				// SoundCloud ID
+				var scid = parseFloat($scid.val());
+				if(!isNaN(scid) && scid > 0){
+					if(currentSCID !== scid){
+						setSoundCloudSongId(scid, function (err){
+							if(err)
+								$scid.parent().addClass('has-error');
+							else
+								$scid.parent().removeClass('has-error');
+						});
+					}
+				} else {
+					$scid.parent().addClass('has-error');
 				}
 
-				var $bpm = $('#editor .bpm');
-				var $offset = $('#editor .offset');
-				var $notes = $('#editor .notes');
-				var $scid = $('#editor .scid');
-				$('#editor textarea, #editor input').bind('change keyup', function (evt){
+				// bpm
+				var bpm = parseFloat($bpm.val());
+				if(!isNaN(bpm) && bpm > 0){
+					game.bpm = bpm;
+					$bpm.parent().removeClass('has-error');
+				} else {
+					$bpm.parent().addClass('has-error');
+				}
 
-					// SoundCloud ID
-					var scid = parseFloat($scid.val());
-					if(!isNaN(scid) && scid > 0){
-						//game.setAudioURI(song.uri);
-						$scid.parent().removeClass('has-error');
-					} else {
-						$scid.parent().addClass('has-error');
-					}
+				// Offset
+				var offset = parseFloat($offset.val());
+				if(!isNaN(offset)){
+					game.offsetSeconds = offset;
+					$offset.parent().removeClass('has-error');
+				} else {
+					$offset.parent().addClass('has-error');
+				}
 
-					// bpm
-					var bpm = parseFloat($bpm.val());
-					if(!isNaN(bpm) && bpm > 0){
-						game.bpm = bpm;
-						$bpm.parent().removeClass('has-error');
-					} else {
-						$bpm.parent().addClass('has-error');
-					}
+				// Notes
+				var json = false;
+				try {
+					json = JSON.parse($notes.val());
+				} catch(err){}
+				if(json && game.parseNotes(json)){
+					$notes.parent().removeClass('has-error');
+				} else {
+					$notes.parent().addClass('has-error');
+				}
 
-					// Offset
-					var offset = parseFloat($offset.val());
-					if(!isNaN(offset)){
-						game.offsetSeconds = offset;
-						$offset.parent().removeClass('has-error');
-					} else {
-						$offset.parent().addClass('has-error');
-					}
 
-					// Notes
-					var json = false;
-					try {
-						json = JSON.parse($notes.val());
-					} catch(err){}
-					if(json && game.parseNotes(json)){
-						$notes.parent().removeClass('has-error');
-					} else {
-						$notes.parent().addClass('has-error');
-					}
-				});
+				// Loop start
+				var loopStartBeat = parseFloat($loopStartBeat.val());
+				if(!isNaN(loopStartBeat)){
+					game.loopStartBeat = loopStartBeat;
+					$loopStartBeat.parent().removeClass('has-error');
+				} else {
+					$loopStartBeat.parent().addClass('has-error');
+				}
+
+				// Loop num beats
+				var loopNumBeats = parseFloat($loopNumBeats.val());
+				if(!isNaN(loopNumBeats)){
+					game.loopNumBeats = loopNumBeats;
+					$loopNumBeats.parent().removeClass('has-error');
+				} else {
+					$loopNumBeats.parent().addClass('has-error');
+				}
 			});
+
+			function setSoundCloudSongId(id, callback){
+				$("#editor input[type=submit]").attr('disabled', 'disabled');
+				SC.get("/tracks/" + id, {}, function (sound){
+					if(sound.errors){
+						return callback && callback(sound.errors);
+					}
+
+					$("#editor input[type=submit]").removeAttr('disabled');
+					game.setAudioURI(sound.stream_url + '?client_id=<%-process.env.DANSA_SC_CLIENT_ID%>');
+					game.play();
+
+					if(sound.artwork_url){
+						$("body").css({
+							"background-image": "url(" + sound.artwork_url.replace('large','t500x500') + ")",
+							'background-size': 640
+						});
+					} else {
+						$("body").css({
+							"background-image": "none"
+						});
+					}
+
+					if(callback)
+						callback(null);
+				});
+			}
 
 		<% } else if(typeof(soundCloudSong) == 'undefined'){ %>
 			var game = new DANSA.Game({
@@ -175,13 +245,9 @@
 			$(".canvas-container").append(game.domElement);
 
 		<% } else { %>
-			// Replace audio with SC stream
-			SC.initialize({
-				client_id: '<%-scClientId%>'
-			});
 
 			SC.get("/tracks/<%-soundCloudSong%>", {}, function (sound){
-				var src = sound.stream_url + '?client_id=<%-scClientId%>';
+				var src = sound.stream_url + '?client_id=<%-process.env.DANSA_SC_CLIENT_ID%>';
 				song.bpm = sound.bpm;
 
 				var game = new DANSA.Game({
@@ -210,7 +276,7 @@
 			}
 			var keyCode = event.which;
 			switch(keyCode){
-			case 69: $("#editor").toggle(); break;
+			//case 69: $("#editor").toggle(); break;
 			}
 		});
 

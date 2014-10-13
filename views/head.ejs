@@ -12,3 +12,12 @@
 </head>
 <body>
     <div class="container">
+
+    	<div class="col-md-12">
+			<% if(typeof(errors) !== 'undefined' && errors.length){ %>
+			<div class="alert alert-danger" role="alert"><%=errors.join('<br/>')%></div>
+			<% } %>
+			<% if(typeof(success) !== 'undefined' && success.length){ %>
+			<div class="alert alert-success" role="alert"><%=success.join('<br/>')%></div>
+			<% } %>
+		</div>

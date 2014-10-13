@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 
 var routes = require(path.join(__dirname, 'routes'));
+var Middleware = require(path.join(__dirname, 'src', 'Middleware'));
 var db = require(path.join(__dirname, 'src', 'Database'));
 
 var app = express();
@@ -21,9 +22,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get ('/', routes.index);
 app.get ('/play', routes.play);
-app.post('/save', routes.save);
 app.get ('/setup', routes.setup);
-app.get ('/songs/:id/play', routes.playSong);
+app.get ('/songs/new', routes.newSong);
+app.post('/songs/new', routes.save);
+app.get ('/songs/:id', Middleware.getSong(), routes.viewSong);
+app.get ('/songs/:id/play', Middleware.getSong(), routes.playSong);
+app.get ('/songs/:id/edit', Middleware.getSong(), routes.editSong);
+app.post('/songs/:id/edit', Middleware.getSong(), routes.save);
 
 db.sync({
 	verbose: true

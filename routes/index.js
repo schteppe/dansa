@@ -1,6 +1,14 @@
 var fs = require('fs');
 var Recaptcha = require('recaptcha').Recaptcha;
 var Database = require('../src/Database');
+var validate = require('jsonschema').validate;
+
+/**
+ * GET /setup
+ */
+exports.setup = function(req, res, next){
+	res.render('setup');
+};
 
 /**
  * GET /
@@ -21,8 +29,7 @@ exports.index = function(req, res, next){
 		});
 
 		res.render('index', {
-			songs: files,
-			scClientId: process.env.DANSA_SC_CLIENT_ID
+			songs: files
 		});
 	});
 };
@@ -37,8 +44,7 @@ exports.play = function(req, res, next){
 
 	var opts = {
 		songId: songId,
-		backgroundUrl: backgroundUrl,
-		scClientId: process.env.DANSA_SC_CLIENT_ID
+		backgroundUrl: backgroundUrl
 	};
 
 	if(scSong){
@@ -49,42 +55,65 @@ exports.play = function(req, res, next){
 };
 
 /**
- * GET /songs/:id/play
+ * GET /songs/:id
  */
-exports.playSong = function(req, res, next){
-	var id = parseInt(req.params.id, 10);
-
-	if(isNaN(id)){
-		return res.status(400).render('404', {
-			message: 'Script usage error.'
-		});
-	}
-
-	Database.query("SELECT * FROM dansa_songs WHERE id=$1", [id], function (err, result){
-		if(err) return next(err);
-
-		if(!result.rows.length){
-			return res.status(404).render('404', {
-				message: 'The song could not be found.'
-			});
-		}
-
-		res.render('play', {
-			song: result.rows[0],
-			scClientId: process.env.DANSA_SC_CLIENT_ID
-		});
+exports.viewSong = function(req, res, next){
+	res.render('song', {
+		song: req.song,
+		success: req.query.created ? ['Created song! Go ahead and share it :)'] : []
 	});
 };
 
 /**
- * GET /setup
+ * GET /songs/:id/play
  */
-exports.setup = function(req, res, next){
-	res.render('setup');
+exports.playSong = function(req, res, next){
+	res.render('play', {
+		song: req.song
+	});
 };
 
 /**
- * GET /save
+ * GET /songs/new
+ */
+exports.newSong = function(req, res, next){
+	res.render('play', {
+		song: {
+			bpm: 100,
+			posoffset: 0,
+			notes: JSON.stringify(
+				[
+					["1000","0100","0010","0001"],
+					["1000","0100","0010","0001"],
+					["1000","0100","0010","0001"],
+					["1000","0100","0010","0001"],
+					["1000","0100","0010","0001"],
+					["1000","0100","0010","0001"],
+					["1000","0100","0010","0001"],
+					["1000","0100","0010","0001"],
+					["1000","0100","0010","0001"],
+					["1000","0100","0010","0001"]
+				]
+			),
+			scid: 0
+		},
+		edit: true
+	});
+};
+
+/**
+ * GET /songs/:id/edit
+ */
+exports.editSong = function(req, res, next){
+	res.render('play', {
+		song: req.song,
+		edit: true
+	});
+};
+
+
+/**
+ * POST /songs/:id/edit
  */
 exports.save = function(req, res, next){
 	var body = req.body;
@@ -96,10 +125,38 @@ exports.save = function(req, res, next){
 	});
 
 	recaptcha.verify(function (captchaSuccess, error_code){
+		var errors = [];
+
 		if(!captchaSuccess){
+			errors.push('The captcha was incorrect. Try again.');
+		}
+
+		var parsedNotes = JSON.parse(body.notes);
+
+		// Validate
+		var result = validate(parsedNotes, {
+			type: "array",
+			items: {
+				type: "array",
+				minItems: 1,
+				maxItems: 1000,
+				items: {
+					type: 'string',
+					pattern: /^[0-3ML]{4}$/
+				}
+			},
+			minItems: 1,
+			maxItems: 1000
+		});
+		if(result.errors.length){
+			errors.push('The note data does not validate: ' + result.errors.join(', '));
+		}
+
+		if(errors.length){
 			return res.render('play', {
 				song: body,
-				scClientId: process.env.DANSA_SC_CLIENT_ID
+				edit: true,
+				errors: errors
 			});
 		}
 
@@ -109,7 +166,7 @@ exports.save = function(req, res, next){
 			if(err) return next(err);
 
 			// Redirect to the new song!
-			res.redirect('/songs/' + result.rows[0].id + '/play');
+			res.redirect('/songs/' + result.rows[0].id + '?created=1');
 		});
 	});
 };
