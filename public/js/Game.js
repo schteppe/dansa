@@ -12,6 +12,8 @@ window.requestAnimFrame = (function(){
 DANSA.Game = function(options){
     options = options || {};
 
+    DANSA.EventEmitter.call(this);
+
     var that = this;
 
     this.imgDir = options.imgDir || '/img';
@@ -193,6 +195,8 @@ DANSA.Game = function(options){
         }
     });
 };
+
+DANSA.Game.prototype = new DANSA.EventEmitter();
 
 /**
  * Parse note data.
@@ -512,6 +516,11 @@ DANSA.Game.prototype.updateInternal = function(deltaSeconds) {
         //if(this.audioElement.readyState >= 1) // Seekable
         //    this.audioElement.currentTime = this.currentTime;
     }
+
+    if(Math.floor(beat) !== this.beat){
+        this.emit({ type: 'beat' });
+    }
+    this.beat = Math.floor(beat);
 
     var i;
     for(i = 0; i < this.targets.length; i++){

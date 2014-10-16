@@ -52,7 +52,7 @@
 			</div>
 
 			<div class="form-group">
-				<label>Loop start (beat)</label>
+				<label>Loop start beat (current: <span class="currentBeat">0</span>)</label>
 				<input type="number" class="form-control loopStartBeat" step="1" value="0" />
 			</div>
 
@@ -140,6 +140,11 @@
 				game.loopStartBeat = 0;
 				game.loopNumBeats = 16;
 			<% } %>
+
+			var $currentBeat = $('.currentBeat');
+			game.on("beat", function(){
+				$currentBeat.html(this.beat);
+			});
 
 			$('#editor textarea, #editor input').bind('change keyup', function (evt){
 
