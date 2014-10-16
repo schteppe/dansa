@@ -243,6 +243,11 @@ DANSA.Game.prototype.parseNotes = function(data) {
         for (var i = 0; i < data.length; i++) {
             var measure = data[i];
 
+            // Measure must be a multiple of 4
+            if(measure.length % 4 !== 0){
+                return false;
+            }
+
             for (var j = 0; j < measure.length; j++) {
                 var steps = measure[j];
 
@@ -275,7 +280,7 @@ DANSA.Game.prototype.parseNotes = function(data) {
                     }
 
                     var note = new DANSA.Note({
-                        beat: i * 4 + 4 / steps.length * j,
+                        beat: i * 4 + 4 / measure.length * j,
                         column: column,
                         type: DANSA.Note.Types.TAP
                     });
