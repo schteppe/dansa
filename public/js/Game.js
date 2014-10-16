@@ -318,11 +318,11 @@ DANSA.Game.prototype.goToBeat = function(beat) {
 };
 
 DANSA.Game.prototype.goToTime = function(time) {
-    this.lastCurrentTime = 0;
+    this.lastCurrentTime = time - 1 / 60;
     this.lastTime = performance.now() / 1000;
     this.lastNow = performance.now();
     this.dTime = 1;
-    this.audioElement.currentTime = this.currentTime = 0;
+    this.currentTime = time;
     this.numTapNoteScores = 0;
     this.points = 0;
     this.currentCombo = 0;
@@ -332,6 +332,10 @@ DANSA.Game.prototype.goToTime = function(time) {
         var note = this.notes[i];
         note.passed = false;
         note.score = 0;
+    }
+
+    if(this.audioElement.readyState >= 1){
+        this.audioElement.currentTime = this.currentTime;
     }
 };
 
@@ -492,20 +496,21 @@ DANSA.Game.prototype.updateInternal = function(deltaSeconds) {
     this.input.update();
 
     // Extrapolate the last time value we got from the audio
-    if(this.playing){
+    //if(this.playing){
         this.currentTime = this.lastCurrentTime + this.dTime * (performance.now() / 1000 - this.lastTime);
-    }
+    //}
 
     // Check if we should go back to loop start
     var beat = this.secondToBeat(this.currentTime);
     var lastCurrentTimeBeat = this.secondToBeat(this.lastCurrentTime);
     if(this.loop && beat > this.loopStartBeat + this.loopNumBeats){
-        this.lastCurrentTime = this.currentTime = this.beatToSecond(beat - this.loopNumBeats);
-
+        /*
+        this.currentTime = this.beatToSecond(beat - this.loopNumBeats);
         this.lastCurrentTime = -(performance.now() / 1000 - this.lastTime) * this.dTime + this.currentTime;
-
-        if(this.audioElement.readyState >= 1) // Seekable
-            this.audioElement.currentTime = this.currentTime;
+        */
+        this.goToBeat(beat - this.loopNumBeats);
+        //if(this.audioElement.readyState >= 1) // Seekable
+        //    this.audioElement.currentTime = this.currentTime;
     }
 
     var i;
